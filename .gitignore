@@ -1,0 +1,7 @@
+Pods/
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
