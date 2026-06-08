@@ -6,10 +6,12 @@ Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a
 
 - SDK initialization at app startup via `TradeableFlutterNavigator.shared.initializeTFS(...)`
 - Embedding Flutter UI inside SwiftUI using `TradeableFlutterView`
-- All three display modes in one screen:
+- Display modes in one screen:
   - direct mode
   - card flip mode
   - fullscreen mode
+- Native side drawer with Flutter side-nav content
+- Fullscreen topic/dashboard content driven by Flutter drawer actions
 - Passing initial payload data into Flutter widgets
 - Fullscreen invocation with a `topicId`
 
@@ -64,6 +66,122 @@ The main screen (`ContentView`) includes:
 - Direct mode widget (`mode: .direct`)
 - Card flip widget (`mode: .cardFlip`)
 - Fullscreen launcher (`mode: .fullscreen`, `topicId: 6`)
+- Native side drawer (`mode: .sideDrawer`, `pageId: 6`)
+- Fullscreen content host (`mode: .fullscreenContent` / `.dashboardContent`)
+
+## Side Nav Implementation
+
+This app uses a native drawer container and renders Flutter content inside it.
+
+```swift
+TradeableFlutterView(
+    mode: .sideDrawer,
+    width: proxy.size.width - 32,
+    height: proxy.size.height,
+    data: ["text": "Native Side Drawer"],
+    pageId: sideDrawerPageId,
+    onCloseSideDrawer: {
+        showNativeDrawer = false
+    }
+)
+```
+
+The app listens for Flutter events and opens a new fullscreen screen natively:
+
+```swift
+navigator.registerDataHandler { payload in
+    guard let action = payload["action"] as? String else { return }
+
+    showNativeDrawer = false
+
+    switch action {
+    case "openTopic":
+        let topicId = payload["topicId"] as? Int ?? 0
+        if topicId > 0 { presentedScreen = .topic(topicId) }
+    case "openDashboard":
+        presentedScreen = .dashboard
+    default:
+        break
+    }
+}
+```
+
+## Usage
+
+Use `TradeableFlutterView` directly in SwiftUI.
+
+```swift
+// Direct mode
+TradeableFlutterView(
+    mode: .direct,
+    width: 320,
+    height: 220,
+    data: ["text": "Trading Widget"]
+)
+
+// Card flip mode
+TradeableFlutterView(
+    mode: .cardFlip,
+    width: 320,
+    height: 220,
+    data: ["text": "Tap to Flip"]
+)
+
+// Fullscreen launcher
+TradeableFlutterView(
+    mode: .fullscreen,
+    data: ["text": "Open Fullscreen"],
+    topicId: 6
+)
+```
+
+Native side drawer + fullscreen content flow:
+
+```swift
+// Drawer content
+TradeableFlutterView(
+    mode: .sideDrawer,
+    width: proxy.size.width - 32,
+    height: proxy.size.height,
+    pageId: 6,
+    onCloseSideDrawer: { showNativeDrawer = false }
+)
+
+// Fullscreen topic content
+TradeableFlutterView(
+    mode: .fullscreenContent,
+    topicId: 6,
+    onCloseFullscreen: { presentedScreen = nil }
+)
+
+// Fullscreen dashboard content
+TradeableFlutterView(
+    mode: .dashboardContent,
+    onCloseFullscreen: { presentedScreen = nil }
+)
+```
+
+## Method Channels Used
+
+Channels:
+
+- `embedded_flutter`
+- `embedded_flutter/auth`
+- `embedded_flutter/navigation`
+
+Host -> Flutter:
+
+- `setData`
+- `initializeTFS`
+- `openTradeableSideDrawer`
+- `navigateTo`, `replaceRoute`, `popToRoot`, `receiveData`
+
+Flutter -> Host:
+
+- `closeCard`
+- `closeFullscreen`
+- `closeSideDrawer`
+- `sendData` (actions: `openTopic`, `openDashboard`)
 
 ## Project Structure
 
