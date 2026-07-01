@@ -3,14 +3,20 @@ import tradeableIOSWrapper
 
 private enum PresentedTradeableScreen: Identifiable {
     case topic(Int)
+    case course(Int)
     case dashboard
+    case userProgress
 
     var id: String {
         switch self {
         case .topic(let topicId):
             return "topic-\(topicId)"
+        case .course(let courseId):
+            return "course-\(courseId)"
         case .dashboard:
             return "dashboard"
+        case .userProgress:
+            return "userProgress"
         }
     }
 }
@@ -86,6 +92,17 @@ struct ContentView: View {
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
                             }
+
+                            VStack(alignment: .leading) {
+                                Text("User Progress")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                TradeableFlutterView(
+                                    mode: .userProgress,
+                                    width: 360,
+                                    height: 400,
+                                )
+                            }
                         }
                     }
                     .padding()
@@ -131,12 +148,33 @@ struct ContentView: View {
                             presentedScreen = nil
                         }
                     )
+                case .course(let courseId):
+                    TradeableFlutterView(
+                        mode: .courseDetailsContent,
+                        width: proxy.size.width,
+                        height: proxy.size.height,
+                        data: ["text": "Course Details"],
+                        courseId: courseId,
+                        onCloseFullscreen: {
+                            presentedScreen = nil
+                        }
+                    )
                 case .dashboard:
                     TradeableFlutterView(
                         mode: .dashboardContent,
                         width: proxy.size.width,
                         height: proxy.size.height,
                         data: ["text": "Learn Dashboard"],
+                        onCloseFullscreen: {
+                            presentedScreen = nil
+                        }
+                    )
+                case .userProgress:
+                    TradeableFlutterView(
+                        mode: .userProgressContent,
+                        width: proxy.size.width,
+                        height: proxy.size.height,
+                        data: ["text": "My Activity"],
                         onCloseFullscreen: {
                             presentedScreen = nil
                         }
@@ -159,18 +197,23 @@ struct ContentView: View {
                 showNativeDrawer = false
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                switch action {
+            switch action {
                 case "openTopic":
                     let topicId = payload["topicId"] as? Int ?? 0
                     if topicId > 0 {
                         presentedScreen = .topic(topicId)
                     }
+                case "openCourseDetails":
+                    let courseId = payload["courseId"] as? Int ?? 0
+                    if courseId > 0 {
+                        presentedScreen = .course(courseId)
+                    }
                 case "openDashboard":
                     presentedScreen = .dashboard
+                case "openUserProgress":
+                    presentedScreen = .userProgress
                 default:
                     break
-                }
             }
         }
     }

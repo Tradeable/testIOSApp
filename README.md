@@ -2,6 +2,9 @@
 
 Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a SwiftUI application.
 
+## change log
+- added new user progress widget
+
 ## What This App Demonstrates
 
 - SDK initialization at app startup via `TradeableFlutterNavigator.shared.initializeTFS(...)`
@@ -14,6 +17,7 @@ Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a
 - Fullscreen topic/dashboard content driven by Flutter drawer actions
 - Passing initial payload data into Flutter widgets
 - Fullscreen invocation with a `topicId`
+- User progress widget
 
 ## Setup
 
@@ -68,6 +72,7 @@ The main screen (`ContentView`) includes:
 - Fullscreen launcher (`mode: .fullscreen`, `topicId: 6`)
 - Native side drawer (`mode: .sideDrawer`, `pageId: 6`)
 - Fullscreen content host (`mode: .fullscreenContent` / `.dashboardContent`)
+- User Progress widget with recent activity/topic suggestions (`mode: .userProgress`)
 
 ## Side Nav Implementation
 
@@ -158,6 +163,13 @@ TradeableFlutterView(
 TradeableFlutterView(
     mode: .dashboardContent,
     onCloseFullscreen: { presentedScreen = nil }
+)
+
+// User Progress Widget
+TradeableFlutterView(
+    mode: .userProgress,
+    width: 320,
+    height: 220,
 )
 ```
 

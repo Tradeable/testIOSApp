@@ -1,27 +1,3 @@
-# platform :ios, '14.0'
-
-# flutter_module_path = '../tradeable_flutter_sdk_module'
-
-# flutter_podhelper = File.join(flutter_module_path, '.ios', 'Flutter', 'podhelper.rb')
-# if File.exist?(flutter_podhelper)
-# 	load flutter_podhelper
-# end
-
-# target 'testingIosApp' do
-# 	use_frameworks!
-
-# 	install_all_flutter_pods(flutter_module_path)
-
-# 	pod 'tradeableIOSWrapper',
-# 			:path => '../tradeableIOSWrapper'
-# end
-
-# post_install do |installer|
-# 	flutter_post_install(installer) if defined?(flutter_post_install)
-# end
-
-
-
 platform :ios, '14.0'
 
 flutter_module_path = 'flutter_module'
@@ -48,3 +24,27 @@ end
 post_install do |installer|
   flutter_post_install(installer) if defined?(flutter_post_install)
 end
+
+
+# for local dev
+# platform :ios, '14.0'
+
+# flutter_module_path = '../tradeable_flutter_sdk_module'
+
+# flutter_podhelper = File.join(flutter_module_path, '.ios', 'Flutter', 'podhelper.rb')
+# if File.exist?(flutter_podhelper)
+# 	load flutter_podhelper
+# end
+
+# target 'testingIosApp' do
+# 	use_frameworks!
+
+# 	install_all_flutter_pods(flutter_module_path)
+
+# 	pod 'tradeableIOSWrapper',
+# 			:path => '../tradeableIOSWrapper'
+# end
+
+# post_install do |installer|
+# 	flutter_post_install(installer) if defined?(flutter_post_install)
+# end
