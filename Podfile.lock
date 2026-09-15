@@ -22,12 +22,12 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - Flutter (from `../tradeable_flutter_sdk_module/.ios/Flutter`)
-  - flutter_inappwebview_ios (from `../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/flutter_inappwebview_ios/ios`)
-  - FlutterPluginRegistrant (from `../tradeable_flutter_sdk_module/.ios/Flutter/FlutterPluginRegistrant`)
-  - tradeableIOSWrapper (from `../tradeableIOSWrapper`)
-  - url_launcher_ios (from `../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/url_launcher_ios/ios`)
-  - webview_flutter_wkwebview (from `../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/webview_flutter_wkwebview/darwin`)
+  - Flutter (from `flutter_module/.ios/Flutter`)
+  - flutter_inappwebview_ios (from `flutter_module/.ios/.symlinks/plugins/flutter_inappwebview_ios/ios`)
+  - FlutterPluginRegistrant (from `flutter_module/.ios/Flutter/FlutterPluginRegistrant`)
+  - tradeableIOSWrapper (from `https://github.com/deepakgrandhi/tradeableIOSWrapper.git`)
+  - url_launcher_ios (from `flutter_module/.ios/.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `flutter_module/.ios/.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -35,17 +35,22 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: "../tradeable_flutter_sdk_module/.ios/Flutter"
+    :path: flutter_module/.ios/Flutter
   flutter_inappwebview_ios:
-    :path: "../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/flutter_inappwebview_ios/ios"
+    :path: flutter_module/.ios/.symlinks/plugins/flutter_inappwebview_ios/ios
   FlutterPluginRegistrant:
-    :path: "../tradeable_flutter_sdk_module/.ios/Flutter/FlutterPluginRegistrant"
+    :path: flutter_module/.ios/Flutter/FlutterPluginRegistrant
   tradeableIOSWrapper:
-    :path: "../tradeableIOSWrapper"
+    :git: https://github.com/deepakgrandhi/tradeableIOSWrapper.git
   url_launcher_ios:
-    :path: "../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/url_launcher_ios/ios"
+    :path: flutter_module/.ios/.symlinks/plugins/url_launcher_ios/ios
   webview_flutter_wkwebview:
-    :path: "../tradeable_flutter_sdk_module/.ios/.symlinks/plugins/webview_flutter_wkwebview/darwin"
+    :path: flutter_module/.ios/.symlinks/plugins/webview_flutter_wkwebview/darwin
+
+CHECKOUT OPTIONS:
+  tradeableIOSWrapper:
+    :commit: 0b07793f367cf396b4a1dc833bc5653150f1b39e
+    :git: https://github.com/deepakgrandhi/tradeableIOSWrapper.git
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
@@ -56,6 +61,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
-PODFILE CHECKSUM: aafb349671653a17309552a9a2a6ec6a02e6eccd
+PODFILE CHECKSUM: e54cefd8ff0d0e02f0b998b53886539dc064bee0
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
