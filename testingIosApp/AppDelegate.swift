@@ -1,19 +1,25 @@
 //
-//  testingIosAppApp.swift
+//  AppDelegate.swift
 //  testingIosApp
 //
 //  Created by Deepak Grandhi on 12/01/26.
 //
 
-import SwiftUI
+import UIKit
 import tradeableIOSWrapper
 
 @main
-struct testingIosAppApp: App {
-    init() {
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var window: UIWindow?
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
         // Initialize TFS with authentication credentials
         let navigator = TradeableFlutterNavigator.shared
-        
+
         navigator.initializeTFS(
             baseUrl: "https://dev.api.tradeable.app/axis/",
             authToken: "",
@@ -28,11 +34,11 @@ struct testingIosAppApp: App {
                 print("TFS initialization failed: \(error ?? "Unknown error")")
             }
         }
-    }
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        window.rootViewController = ContentViewController()
+        window.makeKeyAndVisible()
+        self.window = window
+        return true
     }
 }

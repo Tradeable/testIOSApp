@@ -1,6 +1,6 @@
 # Tradeable iOS Integration App
 
-Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a SwiftUI application.
+Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a UIKit application.
 
 ## change log
 - added new user progress widget
@@ -8,7 +8,7 @@ Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a
 ## What This App Demonstrates
 
 - SDK initialization at app startup via `TradeableFlutterNavigator.shared.initializeTFS(...)`
-- Embedding Flutter UI inside SwiftUI using `TradeableFlutterView`
+- Embedding Flutter UI inside UIKit using `TradeableFlutterView` via `UIHostingController`
 - Display modes in one screen:
   - direct mode
   - card flip mode
@@ -35,7 +35,7 @@ The `Podfile` automatically:
 
 ### 2. Configure credentials
 
-Edit `testingIosApp/testingIosAppApp.swift` and update `initializeTFS(...)` values:
+Edit `testingIosApp/AppDelegate.swift` and update `initializeTFS(...)` values:
 
 ```swift
 navigator.initializeTFS(
@@ -64,7 +64,7 @@ Then run the `testingIosApp` scheme from Xcode.
 
 ## UI Overview
 
-The main screen (`ContentView`) includes:
+The main screen (`ContentViewController`) includes:
 
 - Header with app title
 - Direct mode widget (`mode: .direct`)
@@ -76,7 +76,7 @@ The main screen (`ContentView`) includes:
 
 ## Side Nav Implementation
 
-This app uses a native drawer container and renders Flutter content inside it.
+This app uses a native drawer implementation built with UIKit (`UIView` overlay) and renders Flutter content inside it.
 
 ```swift
 TradeableFlutterView(
@@ -113,7 +113,7 @@ navigator.registerDataHandler { payload in
 
 ## Usage
 
-Use `TradeableFlutterView` directly in SwiftUI.
+Use `TradeableFlutterView` inside a UIKit view controller by wrapping it in a `UIHostingController`. The app's `ContentViewController` provides an `embed(_:in:)` helper for this.
 
 ```swift
 // Direct mode
@@ -200,8 +200,8 @@ Flutter -> Host:
 ```text
 testingIosApp/
 ├── testingIosApp/
-│   ├── testingIosAppApp.swift   # App entry + initializeTFS
-│   ├── ContentView.swift         # Demo screen with 3 display modes
+│   ├── AppDelegate.swift          # App entry + initializeTFS
+│   ├── ContentView.swift          # Demo screen with 3 display modes (UIKit)
 │   └── Assets.xcassets/
 ├── Podfile
 ├── flutter_module/
