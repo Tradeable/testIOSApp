@@ -3,6 +3,7 @@
 Example iOS app showing how to integrate and exercise `tradeableIOSWrapper` in a UIKit application.
 
 ## change log
+- migrated app from SwiftUI to UIKit (`AppDelegate` + `ContentViewController`), hosting Flutter widgets via `UIHostingController`
 - added new user progress widget
 
 ## What This App Demonstrates
@@ -76,67 +77,105 @@ The main screen (`ContentViewController`) includes:
 
 ## Side Nav Implementation
 
-This app uses a native drawer implementation built with UIKit (`UIView` overlay) and renders Flutter content inside it.
+This app uses a native drawer implementation built with UIKit (`UIView` overlay plus a dimmed backdrop) and renders Flutter content inside it via `UIHostingController`.
 
 ```swift
-TradeableFlutterView(
-    mode: .sideDrawer,
-    width: proxy.size.width - 32,
-    height: proxy.size.height,
-    data: ["text": "Native Side Drawer"],
-    pageId: sideDrawerPageId,
-    onCloseSideDrawer: {
-        showNativeDrawer = false
-    }
+let drawerWidth = view.bounds.width - 32
+let drawerHeight = view.bounds.height
+
+let drawer = UIView()
+drawer.backgroundColor = .white
+drawer.layer.shadowColor = UIColor.black.cgColor
+drawer.layer.shadowOpacity = 0.2
+drawer.layer.shadowRadius = 12
+drawer.layer.shadowOffset = CGSize(width: -3, height: 0)
+view.addSubview(drawer)
+
+embed(
+    TradeableFlutterView(
+        mode: .sideDrawer,
+        width: drawerWidth,
+        height: drawerHeight,
+        data: ["text": "Native Side Drawer"],
+        pageId: sideDrawerPageId,
+        onCloseSideDrawer: { [weak self] in
+            self?.closeDrawer()
+        }
+    ),
+    in: drawer
 )
 ```
 
 The app listens for Flutter events and opens a new fullscreen screen natively:
 
 ```swift
-navigator.registerDataHandler { payload in
+navigator.registerDataHandler { [weak self] payload in
+    self?.handleFlutterNavigationEvent(payload)
+}
+
+private func handleFlutterNavigationEvent(_ payload: [String: Any]) {
     guard let action = payload["action"] as? String else { return }
 
-    showNativeDrawer = false
+    DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        self.closeDrawer()
 
-    switch action {
-    case "openTopic":
-        let topicId = payload["topicId"] as? Int ?? 0
-        if topicId > 0 { presentedScreen = .topic(topicId) }
-    case "openDashboard":
-        presentedScreen = .dashboard
-    default:
-        break
+        switch action {
+        case "openTopic":
+            let topicId = payload["topicId"] as? Int ?? 0
+            if topicId > 0 { self.presentFullscreen(...) }
+        case "openDashboard":
+            self.presentFullscreen(...)
+        default:
+            break
+        }
     }
 }
 ```
 
 ## Usage
 
-Use `TradeableFlutterView` inside a UIKit view controller by wrapping it in a `UIHostingController`. The app's `ContentViewController` provides an `embed(_:in:)` helper for this.
+Use `TradeableFlutterView` inside a UIKit view controller by wrapping it in a `UIHostingController`. The app's `ContentViewController` provides an `embed(_:in:)` helper for this:
+
+```swift
+@discardableResult
+private func embed<Content: View>(_ rootView: Content, in container: UIView) -> UIHostingController<Content> {
+    let hostingController = UIHostingController(rootView: rootView)
+    hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+    hostingController.view.backgroundColor = .clear
+    addChild(hostingController)
+    container.addSubview(hostingController.view)
+    hostingController.didMove(toParent: self)
+
+    NSLayoutConstraint.activate([
+        hostingController.view.topAnchor.constraint(equalTo: container.topAnchor),
+        hostingController.view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+        hostingController.view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+        hostingController.view.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+    ])
+    return hostingController
+}
+```
+
+Widgets are hosted inside fixed-height containers within a `UIScrollView`/`UIStackView`:
 
 ```swift
 // Direct mode
-TradeableFlutterView(
-    mode: .direct,
-    width: 320,
-    height: 220,
-    data: ["text": "Trading Widget"]
+embed(
+    TradeableFlutterView(mode: .direct, width: 320, height: 220, data: ["text": "Trading Widget"]),
+    in: directContainer
 )
 
 // Card flip mode
-TradeableFlutterView(
-    mode: .cardFlip,
-    width: 320,
-    height: 220,
-    data: ["text": "Tap to Flip"]
+embed(
+    TradeableFlutterView(mode: .cardFlip, width: 320, height: 220, data: ["text": "Tap to Flip"]),
+    in: cardFlipContainer
 )
 
 // Fullscreen launcher
-TradeableFlutterView(
-    mode: .fullscreen,
-    data: ["text": "Open Fullscreen"],
-    topicId: 6
+embed(
+    TradeableFlutterView(mode: .fullscreen, data: ["text": "Open Fullscreen"], topicId: 6),
+    in: fullscreenContainer
 )
 ```
 
@@ -144,33 +183,50 @@ Native side drawer + fullscreen content flow:
 
 ```swift
 // Drawer content
-TradeableFlutterView(
-    mode: .sideDrawer,
-    width: proxy.size.width - 32,
-    height: proxy.size.height,
-    pageId: 6,
-    onCloseSideDrawer: { showNativeDrawer = false }
+embed(
+    TradeableFlutterView(
+        mode: .sideDrawer,
+        width: view.bounds.width - 32,
+        height: view.bounds.height,
+        pageId: 6,
+        onCloseSideDrawer: { [weak self] in self?.closeDrawer() }
+    ),
+    in: drawer
 )
 
 // Fullscreen topic content
-TradeableFlutterView(
-    mode: .fullscreenContent,
-    topicId: 6,
-    onCloseFullscreen: { presentedScreen = nil }
+presentFullscreen(
+    TradeableFlutterView(
+        mode: .fullscreenContent,
+        topicId: 6,
+        onCloseFullscreen: { [weak self] in self?.dismiss(animated: true) }
+    )
 )
 
 // Fullscreen dashboard content
-TradeableFlutterView(
-    mode: .dashboardContent,
-    onCloseFullscreen: { presentedScreen = nil }
+presentFullscreen(
+    TradeableFlutterView(
+        mode: .dashboardContent,
+        onCloseFullscreen: { [weak self] in self?.dismiss(animated: true) }
+    )
 )
 
-// User Progress Widget
-TradeableFlutterView(
-    mode: .userProgress,
-    width: 320,
-    height: 220,
+// User Progress widget
+embed(
+    TradeableFlutterView(mode: .userProgress, width: 360, height: 400),
+    in: userProgressContainer
 )
+```
+
+where fullscreen content is presented as a full-screen `UIHostingController`:
+
+```swift
+private func presentFullscreen(_ rootView: TradeableFlutterView) {
+    let hostingController = UIHostingController(rootView: rootView)
+    hostingController.view.backgroundColor = .white
+    hostingController.modalPresentationStyle = .fullScreen
+    present(hostingController, animated: true)
+}
 ```
 
 ## Method Channels Used
